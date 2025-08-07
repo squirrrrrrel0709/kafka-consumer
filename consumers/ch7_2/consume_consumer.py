@@ -13,8 +13,8 @@ class ConsumeConsumer(BaseConsumer):
 
         conf = {'bootstrap.servers': self.BOOTSTRAP_SERVERS,
                 'group.id': self.group_id,
-                'auto.offset.reset': 'earliest',
-                'enable.auto.commit': 'false'
+                'auto.offset.reset': 'earliest',  # 최근거부터 마저읽기
+                'enable.auto.commit': 'false' # 오토커밋 끄기
                 }
 
         self.consumer = Consumer(conf)
@@ -23,26 +23,27 @@ class ConsumeConsumer(BaseConsumer):
 
     def poll(self):
         try:
-            while True:
+            while True:  # 메세지 100개 읽어서 리스트 저장
                 msg_lst = self.consumer.consume(num_messages=100)
-                if msg_lst is None or len(msg_lst) == 0: continue
+                if msg_lst is None or len(msg_lst) == 0: continue  # 메세지 없으면 다음루프
 
-                self.logger.info(f'message count:{len(msg_lst)}')
+                self.logger.info(f'message count:{len(msg_lst)}')  # 메세지 길이 로그찍기
                 for msg in msg_lst:
                     error = msg.error()
                     if error:
-                        self.handle_error(msg, error)
+                        self.handle_error(msg, error)  # 베이스컨슈머 메서드
 
-                # 로직 처리 부분
-                # Kafka 레코드에 대한 전처리, Target Sink 등 수행
+                # 로직 처리 부분: Kafka 레코드에 대한 전처리, Target Sink 등 수행
                 self.logger.info(f'message 처리 로직 시작')
+                # 메세지 값을 디코딩하고, JSON문자열을 파이썬 객체로 반환
                 msg_val_lst = [json.loads(msg.value().decode('utf-8')) for msg in msg_lst]
+                # DF로 만들어서 찍어줌
                 df = pd.DataFrame(msg_val_lst)
                 print(df[:10])
 
 
                 self.logger.info(f'message 처리 로직 완료, Async Commit 후 2초 대기')
-                # 로직 처리 완료 후 Async Commit 수행
+                # 오토커밋 꺼져있으므로: 로직 처리 완료 후 Async Commit 수행
                 self.consumer.commit(asynchronous=True)
                 self.logger.info(f'Commit 완료')
                 time.sleep(2)
