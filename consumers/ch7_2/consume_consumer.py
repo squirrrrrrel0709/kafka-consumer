@@ -37,7 +37,7 @@ class ConsumeConsumer(BaseConsumer):
                 self.logger.info(f'message 처리 로직 시작')
                 # 메세지 값을 디코딩하고, JSON문자열을 파이썬 객체로 반환
                 msg_val_lst = [json.loads(msg.value().decode('utf-8')) for msg in msg_lst]
-                # DF로 만들어서 찍어줌
+                # DF로 만들어서 10개만 찍어줌
                 df = pd.DataFrame(msg_val_lst)
                 print(df[:10])
 
