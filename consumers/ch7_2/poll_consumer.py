@@ -24,7 +24,7 @@ class PollConsumer(BaseConsumer):
     def poll(self):
         msg_cnt = 0
         try:
-            while True:
+            while True:         #메세지를 단건 가져옴
                 msg = self.consumer.poll(timeout=1.0)
                 if msg is None: continue
 
@@ -32,14 +32,13 @@ class PollConsumer(BaseConsumer):
                 if error:
                     self.handle_error(msg, error)
 
-                # 로직 처리 부분
-                # Kafka 레코드에 대한 전처리, Target Sink 등 수행
+                # 메세지 값을 디코딩하고, JSON문자열을 파이썬 객체로 반환
                 df = pd.DataFrame([json.loads(msg.value().decode('utf-8'))])
                 print(df)
                 msg_cnt += 1
 
-                # 로직 처리 완료 후 Async Commit 수행 후 2초 대기
-                # 커밋 구간 사이에서 Consumer Program Down & 재시작하는 경우 메시지 중복처리가 될 수 있음
+                # 100의 배수마다(나머지가 0일때마다) 완료커밋을 찍어줌
+                # 즉 루프가 100개 돌때마다 찍었습니다 호출
                 if msg_cnt % self.MIN_COMMIT_COUNT == 0:
                     self.consumer.commit(asynchronous=True)
                     self.logger.info(f'Commit 완료')

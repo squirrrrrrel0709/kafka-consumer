@@ -17,7 +17,7 @@ class ConsumeConsumer(BaseConsumer):
                 'enable.auto.commit': 'false' # 오토커밋 끄기
                 }
 
-        self.consumer = Consumer(conf)
+        self.consumer = Consumer(conf)     # 파티션 할당받으면 콜백(할당완료 로그)
         self.consumer.subscribe(self.topics, on_assign=self.callback_on_assign)
 
 
@@ -33,7 +33,7 @@ class ConsumeConsumer(BaseConsumer):
                     if error:
                         self.handle_error(msg, error)  # 베이스컨슈머 메서드
 
-                # 로직 처리 부분: Kafka 레코드에 대한 전처리, Target Sink 등 수행
+
                 self.logger.info(f'message 처리 로직 시작')
                 # 메세지 값을 디코딩하고, JSON문자열을 파이썬 객체로 반환
                 msg_val_lst = [json.loads(msg.value().decode('utf-8')) for msg in msg_lst]
