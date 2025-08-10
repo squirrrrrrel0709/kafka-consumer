@@ -12,9 +12,9 @@ class AutoCommitConsumer(BaseConsumer):
 
         conf = {'bootstrap.servers': self.BOOTSTRAP_SERVERS, #컨슈머 설정
                 'group.id': self.group_id,
-                'auto.offset.reset': 'latest', # 최근거부터 마저읽기!
-                'enable.auto.commit': 'true', # earliest에서 true로 바뀜
-                'auto.commit.interval.ms': '60000'   # 기본 값: 5000 (5초) -> 60초
+                'auto.offset.reset': 'latest', # 최근거부터 마저읽기
+                'enable.auto.commit': 'true', # true로 바뀜
+                'auto.commit.interval.ms': '60000' # 기본값: 5000(5초) -> 60초
                 }
 
         self.consumer = Consumer(conf) #라이브러리 제공 클래스로 컨슈머 생성
@@ -40,7 +40,8 @@ class AutoCommitConsumer(BaseConsumer):
                 msg_val_lst = [json.loads(msg.value().decode('utf-8')) for msg in msg_lst]
                 # DF로 만들어서 찍어줌
                 df = pd.DataFrame(msg_val_lst)
-                print(df[:10])
+                self.logger.info(len(df))
+                #print(df[:10])
 
 
         except KafkaException as e:
