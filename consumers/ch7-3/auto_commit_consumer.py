@@ -3,6 +3,7 @@ from confluent_kafka import KafkaException
 from consumers.base_consumer import BaseConsumer
 import pandas as pd
 import json
+import time
 
 
 class AutoCommitConsumer(BaseConsumer):
@@ -42,6 +43,7 @@ class AutoCommitConsumer(BaseConsumer):
                 df = pd.DataFrame(msg_val_lst)
                 self.logger.info(len(df))
                 #print(df[:10])
+                time.sleep(2)
 
 
         except KafkaException as e:
