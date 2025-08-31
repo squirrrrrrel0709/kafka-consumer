@@ -24,7 +24,7 @@ class PollConsumer(BaseConsumer):
     def poll(self):
         msg_cnt = 0
         try:
-            while True:         #메세지를 단건 가져옴
+            while True:         #메세지를 단건 가져옴!
                 msg = self.consumer.poll(timeout=1.0)
                 if msg is None: continue
 
